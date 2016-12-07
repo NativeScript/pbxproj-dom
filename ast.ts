@@ -7,103 +7,164 @@ export type Kind =
     "List" |
     "Identifier" |
     "WhiteSpace" |
-    "Space";
+    "Space" |
+    "Null";
+
+export function isDictionary(node: Node): node is Dictionary {
+    return node.kind === "Dictionary";
+}
+export function isList(node: Node): node is List {
+    return node.kind === "List";
+}
 
 export abstract class Node {
-    kind: Kind;
+    readonly kind: Kind;
+    get kvps(): KeyValuePair[] { return []; }
+    get items(): Value[] { return []; }
+    get text(): string { return undefined; }
+
+    /**
+     * Perform "RFC 7386 - JSON Merge Patch" on the json version of the AST
+     * and tries to propagate the changes back to the AST.
+     * 
+     * A Node can not change its own type based on the merge.
+     * Arrays may be completely overwritten.
+     */
+    patch(json: any) {}
+}
+
+class Null extends Node {
+    get json() { return undefined; }
+    static instance = new Null();
 }
 
 export class Document extends Node {
-    constructor(private s1: Space, private root: Dictionary, private s2: Space) {
+    constructor(private _s1: Space, public root: Dictionary, private _s2: Space) {
         super();
     }
+    get json(): any {
+        return this.root.json;
+    }
+    get(key: string): NullableValue {
+        return this.root.get(key);
+    }
     toString() {
-        return "// !$*UTF8*$!" + this.s1 + this.root + this.s2;
+        return "// !$*UTF8*$!" + this._s1 + this.root + this._s2;
+    }
+    forEach(cb: (kvp: KeyValuePair) => void) {
+        this.root.kvps.forEach(cb);
     }
 }
-Document.prototype.kind = "Document";
+(<any>Document.prototype).kind = "Document";
 
 export class Dictionary extends Node {
-    constructor(private s1: Space, private content: [KeyValuePair, Space, ";", Space][]) {
+    constructor(private _s1: Space, private _content: [KeyValuePair, Space, ";", Space][]) {
         super();
     }
-    toString = function() {
-        return "{" + this.s1 + this.content.map(a => a.join("")).join("") + "}";
+    get kvps(): KeyValuePair[] {
+        return this._content.map(arr => arr[0]);
+    }
+    get(key: string): NullableValue {
+        const kvp = this.kvps.find(kvp => kvp.key.json == key);
+        return kvp ? kvp.value : Null.instance;
+    }
+    get json(): any {
+        return this._content.reduce((acc, kvpArr) => {
+            const kvp = kvpArr[0];
+            acc[kvp.key.json] = kvp.value.json;
+            return acc;
+        }, {});
+    }
+    toString() {
+        return "{" + this._s1 + this._content.map(a => a.join("")).join("") + "}";
     }
 }
-Dictionary.prototype.kind = "Dictionary";
+(<any>Dictionary.prototype).kind = "Dictionary";
 
 export type Value = StringBlock | Dictionary | List | Identifier;
+export type NullableValue = Value | Null;
+export type Key = StringBlock | Identifier;
 
 export class KeyValuePair extends Node {
-    constructor(private key: StringBlock | Identifier, private s1: Space, private s2: Space, private value: Value) {
+    constructor(private _key: Key, private _s1: Space, private _s2: Space, public value: Value) {
         super();
     }
-    toString = function(indent) {
-        return this.key + this.s1 + "=" + this.s2 + this.value;
+    get key(): Key { return this._key }
+    get(key: string): NullableValue {
+        return isDictionary(this.value) && this.value.get(key) || Null.instance;
+    }
+    toString() {
+        return "" + this._key + this._s1 + "=" + this._s2 + this.value;
     }
 }
-KeyValuePair.prototype.kind = "KeyValuePair";
+(<any>KeyValuePair.prototype).kind = "KeyValuePair";
 
 export class StringBlock extends Node {
-    constructor(private text: string) {
-        // TODO: text is unescaped
+    constructor(private _text: string) {
+        // TODO: _text is unescaped, we need to support 2 versions
         super();
     }
-    toString = function() {
-        return '"' + this.text + '"';
+    get text(): string { return this._text; }
+    get json(): string { return this._text; }
+    toString() {
+        return '"' + this._text + '"';
     }
 }
-StringBlock.prototype.kind = "StringBlock";
+(<any>StringBlock.prototype).kind = "StringBlock";
 
 export class CommentBlock extends Node {
-    constructor(private text) {
-        // TODO: text is unescaped
+    constructor(private _text: string) {
         super();
     }
     toString() {
-        return "/*" + this.text + "*/";
+        return "/*" + this._text + "*/";
     }
 }
-CommentBlock.prototype.kind = "CommentBlock";
+(<any>CommentBlock.prototype).kind = "CommentBlock";
 
 
 export class List extends Node {
-    constructor(private s1, private content: [Value, Space, ",", Space][]) {
+    constructor(private _s1, private _content: [Value, Space, ",", Space][]) {
         super();
     }
+    get items(): Value[] {
+        return this._content.map(e => e[0]);
+    }
+    get json(): any[] {
+        return this._content.map(e => e[0].json);
+    }
     toString() {
-        return "(" + this.s1 + this.content.map(l => l.join("")).join("") + ")";
+        return "(" + this._s1 + this._content.map(l => l.join("")).join("") + ")";
     }
 }
-List.prototype.kind = "List";
+(<any>List.prototype).kind = "List";
 
 export class Identifier extends Node {
-    constructor(private text: string) {
+    constructor(private _text: string) {
         super();
     }
-    toString() {
-        return this.text;
-    }
+    get text(): string { return this._text; }
+    get json(): string { return this._text; }
+    toString() { return this._text; }
 }
-Identifier.prototype.kind = "Identifier";
+(<any>Identifier.prototype).kind = "Identifier";
 
 export class WhiteSpace extends Node {
-    constructor(private text: string) {
+    constructor(private _text: string) {
         super();
     }
     toString() {
-        return this.text;
+        return this._text;
     }
 }
-WhiteSpace.prototype.kind = "WhiteSpace";
+(<any>WhiteSpace.prototype).kind = "WhiteSpace";
 
 export class Space extends Node {
-    constructor(private content: (WhiteSpace | CommentBlock)[]) {
+    constructor(private _content: (WhiteSpace | CommentBlock)[]) {
         super();
     }
     toString() {
-        return this.content.join("");
+        return this._content.join("");
     }
 }
-Space.prototype.kind = "Space";
+(<any>Space.prototype).kind = "Space";

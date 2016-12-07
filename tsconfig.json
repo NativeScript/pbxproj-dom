@@ -5,9 +5,6 @@
         "experimentalDecorators": true,
         "lib": [
             "es2016"
-        ],
-        "types": [
-            "node"
         ]
     }
 }

@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "devDependencies": {
+    "@types/mocha": "^2.2.33",
     "@types/node": "0.0.2",
     "chai": "^3.5.0",
     "mocha": "^3.1.2",
