@@ -3,25 +3,28 @@ import {assert} from "chai";
 
 import * as fs from "fs";
 
-declare var describe, it;
+declare var describe, it, console;
 
 describe("parser", () => {
-    describe("proj0", () => {
-        it("roundtrips", () => {
-            const src = fs.readFileSync("tests/proj0.pbxproj").toString();
+    describe("roundtrips", () => {
+        [
+            "tests/simple.pbxproj",
+            "tests/proj0.pbxproj",
+            "tests/proj1.pbxproj",
+            "tests/signing-style/expected-manual.pbxproj"
+        ].forEach(f => it(f, () => {
+            const src = fs.readFileSync(f).toString();
             const ast = parse(src);
             const out = ast.toString();
-            // console.log("out: " + out);
-            assert.equal(out, src, "Expect proj0 pbxproj to roundtrip");
-        });
+            assert.equal(out, src, "Expect parse and toString to roundtrip");
+        }));
     });
-    describe("proj1", () => {
-        it("roundtrips", () => {
-            const src = fs.readFileSync("tests/proj1.pbxproj").toString();
-            const ast = parse(src);
-            const out = ast.toString();
-            // console.log("out: " + out);
-            assert.equal(out, src, "Expect proj1 pbxproj to roundtrip");
-        });
+});
+
+describe("dom", () => {
+    it("set signing style to manual", () => {
+        const expected = fs.readFileSync("tests/signing-style/expected-manual.pbxproj").toString();
+        const expectedAst = parse(expected);
+        // console.log(expectedAst);
     });
 });
