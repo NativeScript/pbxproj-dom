@@ -20,20 +20,20 @@ function isJSONDictionary(json: any): json is Object {
     return typeof json === "object";
 }
 function isJSONIdentifier(json: any): json is number | string {
-    return isJSONKey(json) && hasSpecialSymbols(json.toString());
+    return isJSONKey(json) && canBeIdentifier(json.toString());
 }
 function isJSONStringBlock(json: any): json is number | string {
-    return isJSONKey(json) && !hasSpecialSymbols(json.toString());
+    return isJSONKey(json) && !canBeIdentifier(json.toString());
 }
 function isJSONKey(json: any): json is number | string {
     return typeof json === "number" || typeof json === "string";
 }
-function hasSpecialSymbols(text: string): boolean {
+function canBeIdentifier(text: string): boolean {
     return /[0-9a-zA-Z][0-9a-zA-Z-]*/.test(text);
 }
 function makeKey(json: string | number): Key {
     let text = json.toString();
-    if (hasSpecialSymbols(text)) {
+    if (canBeIdentifier(text)) {
         return new Identifier(text);
     } else {
         return new StringBlock(text);
@@ -156,6 +156,7 @@ export class Dictionary extends Node {
             } else {
                 let kvp = this._content.map(kvpArr => kvpArr[0]).find(kvp => kvp.key.text === key);
                 if (!kvp) {
+                    console.log("Making new KVP...");
                     kvp = new KeyValuePair<Value>(makeKey(key), new Space([new WhiteSpace(" ")]), new Space([new WhiteSpace("\n")]), null);
                     this._content.push([kvp, new Space([]), ";", new Space([])]);
                 }
@@ -183,6 +184,7 @@ export class Dictionary extends Node {
         }
     }
     toString() {
+        // TODO: It appears the _content is ordered alphabetically...
         return "{" + this._s1 + this._content.map(a => a.join("")).join("") + "}";
     }
 }

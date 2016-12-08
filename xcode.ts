@@ -8,7 +8,7 @@ import * as fs from "fs";
 export class Xcode {
     public document: pbx.Document;
 
-    public static openProject(path: string): Xcode {
+    public static open(path: string): Xcode {
         const xcode = new Xcode();
         xcode.document = pbx.parse(parser.parse(fs.readFileSync(path).toString()));
         return xcode;
@@ -40,6 +40,38 @@ export class Xcode {
                         buildSettings: {
                             "CODE_SIGN_IDENTITY[sdk=iphoneos*]": undefined /* deletes the CODE_SIGN_IDENTITY[sdk=iphoneos*] */,
                             DEVELOPMENT_TEAM: ""
+                        }
+                    });
+                });
+            });
+    }
+
+    /**
+     * Sets Automatic signing style for a target in the pbx.Document.
+     */
+    setAutomaticSigningStyle(targetName: string, developmentTeam: string) {
+        this.document.targets
+            .filter(target => target.name === targetName)
+            .forEach(target => {
+                this.document.projects
+                    .filter(project => project.targets.indexOf(target) >= 0)
+                    .forEach(project => {
+                        project.patch({
+                            attributes: {
+                                TargetAttributes: {
+                                    [target.key]: {
+                                        DevelopmentTeam: developmentTeam /* deletes "W7TGC3P93K" */,
+                                        ProvisioningStyle: "Automatic"
+                                    }
+                                }
+                            }
+                        });
+                    });
+                target.buildConfigurationsList.buildConfigurations.forEach(config => {
+                    config.patch({
+                        buildSettings: {
+                            "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer",
+                            DEVELOPMENT_TEAM: developmentTeam
                         }
                     });
                 });
