@@ -1,5 +1,6 @@
 import * as ast from "./parser";
-import * as pbx from "./pbx";
+import { Xcode } from "./xcode";
+
 import {assert} from "chai";
 
 import * as fs from "fs";
@@ -22,26 +23,10 @@ describe("parser", () => {
 });
 
 describe("dom", () => {
-    it("set signing style to manual", () => {
-        const str = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
-        const parsed = ast.parse(str);
-        const document = pbx.parse(parsed);
-
-        const signTargetName = "SampleProvProfApp";
-        
-        document.targets
-            .filter(target => target.name === signTargetName)
-            .forEach(target => document.projects
-                .filter(project => project.targets.indexOf(target) >= 0)
-                .forEach(project => project.ast.patch({
-                    attributes: {
-                        TargetAttributes: {
-                            [target.key]: {
-                                DevelopmentTeam: undefined/* deletes "W7TGC3P93K" */,
-                                ProvisioningStyle: "Manual"
-                            }
-                        }
-                    }
-                })));
+    it("set signing style from automatic to manual", () => {
+        const xcode = Xcode.openProject("tests/signing-style/manual.pbxproj");
+        xcode.setManualSigningStyle("SampleProvProfApp");
+        const expected = fs.readFileSync("tests/signing-style/manual.pbxproj").toString();
+        assert.equal(xcode.toString(), expected);
     });
 });

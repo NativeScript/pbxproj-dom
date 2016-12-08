@@ -8,12 +8,14 @@
     "@types/node": "0.0.2",
     "chai": "^3.5.0",
     "mocha": "^3.1.2",
+    "mocha-typescript": "^1.0.14",
     "pegjs": "^0.10.0",
-    "typescript": "^2.0.10"
+    "typescript": "^2.1.4"
   },
   "scripts": {
     "prepublish": "pegjs parser.pegjs && tsc",
-    "test": "npm run prepublish && mocha"
+    "test": "npm run prepublish && mocha",
+    "watch": "mocha-typescript-watch"
   },
   "repository": {
     "type": "git",

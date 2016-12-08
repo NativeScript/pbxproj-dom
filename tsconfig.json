@@ -3,6 +3,10 @@
         "module": "commonjs",
         "target": "es5",
         "experimentalDecorators": true,
+        "noUnusedLocals": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitUseStrict": true,
         "lib": [
             "es2016"
         ]
