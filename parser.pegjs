@@ -3,7 +3,7 @@
 }
 
 Document = "// !$*UTF8*$!" s1:Space root:Dictionary s2:Space { return new ast.Document(s1, root, s2); }
-Dictionary = "{" s1:Space content:(KeyValuePair s3:Space ";" s4:Space)* "}" { return new ast.Dictionary(s1, content); }
+Dictionary = "{" content:(Space KeyValuePair Space ";")* s1:Space "}" { return new ast.Dictionary(content, s1); }
 KeyValuePair = key:(StringBlock / Identifier) s1:Space "=" s2:Space value:Value { return new ast.KeyValuePair(key, s1, s2, value); }
 Value = StringBlock / Dictionary / List / Identifier
 List = "(" s1:Space content:(Value Space "," Space)* ")" { return new ast.List(s1, content); }

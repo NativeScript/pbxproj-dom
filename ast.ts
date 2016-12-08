@@ -107,17 +107,17 @@ export class Document extends Node {
 }
 (<any>Document.prototype).kind = "Document";
 
-type DictionaryItem = [KeyValuePair<Value>, Space, ";", Space];
+type DictionaryItem = [Space, KeyValuePair<Value>, Space, ";"];
 export class Dictionary extends Node {
-    constructor(private _s1: Space, private _content: DictionaryItem[]) {
+    constructor(private _content: DictionaryItem[], private _s1: Space) {
         super();
     }
     get kvps(): KeyValuePair<Value>[] {
-        return this._content.map(arr => arr[0]);
+        return this._content.map(arr => arr[1]);
     }
     get json(): any {
         return this._content.reduce((acc: any, kvpArr: DictionaryItem) => {
-            const kvp = kvpArr[0];
+            const kvp = kvpArr[1];
             acc[kvp.key.json] = kvp.value.json;
             return acc;
         }, {});
@@ -154,11 +154,11 @@ export class Dictionary extends Node {
             } else if (isJSONStringBlock(value) && isStringBlock(current)) {
                 current.text = value.toString();
             } else {
-                let kvp = this._content.map(kvpArr => kvpArr[0]).find(kvp => kvp.key.text === key);
+                let kvp = this._content.map(kvpArr => kvpArr[1]).find(kvp => kvp.key.text === key);
                 if (!kvp) {
-                    console.log("Making new KVP...");
+                    console.log("Making new KVP... Figure out whitespace...");
                     kvp = new KeyValuePair<Value>(makeKey(key), new Space([new WhiteSpace(" ")]), new Space([new WhiteSpace("\n")]), null);
-                    this._content.push([kvp, new Space([]), ";", new Space([])]);
+                    this._content.push([new Space([]), kvp, new Space([]), ";"]);
                 }
                 if (isJSONKey(value)) {
                     kvp.value = makeKey(value);
@@ -177,7 +177,7 @@ export class Dictionary extends Node {
     }
     delete(key: string) {
         for (let i = this._content.length - 1; i >= 0; i--) {
-            if (this._content[i][0].key.text === key) {
+            if (this._content[i][1].key.text === key) {
                 this._content.splice(i, 1);
                 return;
             }
@@ -185,7 +185,7 @@ export class Dictionary extends Node {
     }
     toString() {
         // TODO: It appears the _content is ordered alphabetically...
-        return "{" + this._s1 + this._content.map(a => a.join("")).join("") + "}";
+        return "{" + this._content.map(a => a.join("")).join("") + this._s1 + "}";
     }
 }
 (<any>Dictionary.prototype).kind = "Dictionary";

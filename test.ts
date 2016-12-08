@@ -27,14 +27,13 @@ describe("dom", () => {
         const xcode = Xcode.open("tests/signing-style/automatic.pbxproj");
         xcode.setManualSigningStyle("SampleProvProfApp");
         const expected = fs.readFileSync("tests/signing-style/manual.pbxproj").toString();
-        console.log(xcode.toString());
         assert.equal(xcode.toString(), expected);
     });
-    // it("can set signing style from manual to automatic", () => {
-    //     const xcode = Xcode.open("tests/signing-style/manual.pbxproj");
-    //     xcode.setAutomaticSigningStyle("SampleProvProfApp", "W7TGC3P93K");
-    //     const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
-    //     console.log(xcode.toString());
-    //     assert.equal(xcode.toString(), expected);
-    // })
+    it("can set signing style from manual to automatic", () => {
+        const xcode = Xcode.open("tests/signing-style/manual.pbxproj");
+        xcode.setAutomaticSigningStyle("SampleProvProfApp", "W7TGC3P93K");
+        // const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
+        console.log(xcode.toString());
+        // assert.equal(xcode.toString(), expected);
+    })
 });
