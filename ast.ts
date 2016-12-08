@@ -31,12 +31,12 @@ function isJSONKey(json: any): json is number | string {
 function canBeIdentifier(text: string): boolean {
     return /[0-9a-zA-Z][0-9a-zA-Z-]*/.test(text);
 }
-function makeKey(json: string | number): Key {
+function makeKey(space: Space, json: string | number): Key {
     let text = json.toString();
     if (canBeIdentifier(text)) {
-        return new Identifier(text);
+        return new Identifier(space, text);
     } else {
-        return new StringBlock(text);
+        return new StringBlock(space, text);
     }
 }
 
@@ -81,6 +81,8 @@ export abstract class Node {
      * Returns JSON object matching the AST.
      */
     get json(): any { return undefined; }
+
+    get indent(): string { return " "; }
 }
 
 class Null extends Node {
@@ -88,7 +90,7 @@ class Null extends Node {
 }
 
 export class Document extends Node {
-    constructor(private _s1: Space, public root: Dictionary, private _s2: Space) {
+    constructor(public root: Dictionary, private _s1: Space) {
         super();
     }
     get json(): any {
@@ -102,22 +104,20 @@ export class Document extends Node {
         this.root.kvps.forEach(cb);
     }
     toString() {
-        return "// !$*UTF8*$!" + this._s1 + this.root + this._s2;
+        return "// !$*UTF8*$!" + this.root + this._s1;
     }
 }
 (<any>Document.prototype).kind = "Document";
 
-type DictionaryItem = [Space, KeyValuePair<Value>, Space, ";"];
 export class Dictionary extends Node {
-    constructor(private _content: DictionaryItem[], private _s1: Space) {
+    constructor(private _s1: Space, private _content: KeyValuePair<Value>[], private _s2: Space) {
         super();
     }
     get kvps(): KeyValuePair<Value>[] {
-        return this._content.map(arr => arr[1]);
+        return this._content;
     }
     get json(): any {
-        return this._content.reduce((acc: any, kvpArr: DictionaryItem) => {
-            const kvp = kvpArr[1];
+        return this._content.reduce((acc: any, kvp: KeyValuePair<Value>) => {
             acc[kvp.key.json] = kvp.value.json;
             return acc;
         }, {});
@@ -154,14 +154,9 @@ export class Dictionary extends Node {
             } else if (isJSONStringBlock(value) && isStringBlock(current)) {
                 current.text = value.toString();
             } else {
-                let kvp = this._content.map(kvpArr => kvpArr[1]).find(kvp => kvp.key.text === key);
-                if (!kvp) {
-                    console.log("Making new KVP... Figure out whitespace...");
-                    kvp = new KeyValuePair<Value>(makeKey(key), new Space([new WhiteSpace(" ")]), new Space([new WhiteSpace("\n")]), null);
-                    this._content.push([new Space([]), kvp, new Space([]), ";"]);
-                }
+                let astValue: Value;
                 if (isJSONKey(value)) {
-                    kvp.value = makeKey(value);
+                    astValue = makeKey(new Space([new WhiteSpace(" ")]), value);
                 } else if (isDictionary(value)) {
                     // TODO:
                     throw new Error("Not implemented making dictionary from json object");
@@ -172,12 +167,21 @@ export class Dictionary extends Node {
                     // TODO:
                     throw new Error("Not implemented making ast from json " + value);
                 }
+
+                let kvp = this._content.find(kvp => kvp.key.text === key);
+                if (kvp) {
+                    kvp.value = astValue;
+                } else {
+                    // TODO: Indent here...
+                    kvp = new KeyValuePair<Value>(new Space([]), makeKey(new Space([new WhiteSpace(" ")]), key), new Space([new WhiteSpace(" ")]), astValue, new Space([]));
+                    this._content.push(kvp);
+                }
             }
         }
     }
     delete(key: string) {
         for (let i = this._content.length - 1; i >= 0; i--) {
-            if (this._content[i][1].key.text === key) {
+            if (this._content[i].key.text === key) {
                 this._content.splice(i, 1);
                 return;
             }
@@ -185,7 +189,7 @@ export class Dictionary extends Node {
     }
     toString() {
         // TODO: It appears the _content is ordered alphabetically...
-        return "{" + this._content.map(a => a.join("")).join("") + this._s1 + "}";
+        return this._s1 + "{" + this._content.join("") + this._s2 + "}";
     }
 }
 (<any>Dictionary.prototype).kind = "Dictionary";
@@ -195,25 +199,25 @@ export type NullableValue = Value | Null;
 export type Key = StringBlock | Identifier;
 
 export class KeyValuePair<V extends Value> extends Node {
-    constructor(private _key: Key, private _s1: Space, private _s2: Space, public value: V) {
+    constructor(private _s1: Space, private _key: Key, private _s2: Space, public value: V, private _s3: Space) {
         super();
     }
     get key(): Key { return this._key }
     toString() {
-        return "" + this._key + this._s1 + "=" + this._s2 + this.value;
+        return "" + this._s1 + this._key + this._s2 + "=" + this.value + this._s3 + ";";
     }
 }
 (<any>KeyValuePair.prototype).kind = "KeyValuePair";
 
 export class StringBlock extends Node {
-    constructor(public text: string) {
+    constructor(private _s1: Space, public text: string) {
         // TODO: Escape the text.
         super();
     }
     get json(): string { return this.text; }
     toString() {
         // TODO: Unescape the text.
-        return '"' + this.text + '"';
+        return this._s1 + '"' + this.text + '"';
     }
 }
 (<any>StringBlock.prototype).kind = "StringBlock";
@@ -230,7 +234,7 @@ export class CommentBlock extends Node {
 (<any>CommentBlock.prototype).kind = "CommentBlock";
 
 export class List extends Node {
-    constructor(private _s1: Space, private _content: [Value, Space, ",", Space][]) {
+    constructor(private _s1: Space, private _content: [Value, Space, ",", Space][], private _s2: Space) {
         super();
     }
     get items(): Value[] {
@@ -240,17 +244,17 @@ export class List extends Node {
         return this._content.map(e => e[0].json);
     }
     toString() {
-        return "(" + this._s1 + this._content.map(l => l.join("")).join("") + ")";
+        return this._s1 + "(" + this._content.map(l => l.join("")).join("") + this._s2 + ")";
     }
 }
 (<any>List.prototype).kind = "List";
 
 export class Identifier extends Node {
-    constructor(public text: string) {
+    constructor(private _s1: Space, public text: string) {
         super();
     }
     get json(): string { return this.text; }
-    toString() { return this.text; }
+    toString() { return this._s1 + this.text; }
 }
 (<any>Identifier.prototype).kind = "Identifier";
 
