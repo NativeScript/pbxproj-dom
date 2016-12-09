@@ -32,8 +32,7 @@ describe("dom", () => {
     it("can set signing style from manual to automatic", () => {
         const xcode = Xcode.open("tests/signing-style/manual.pbxproj");
         xcode.setAutomaticSigningStyle("SampleProvProfApp", "W7TGC3P93K");
-        // const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
-        // console.log(xcode.toString());
-        // assert.equal(xcode.toString(), expected);
+        const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
+        assert.equal(xcode.toString(), expected);
     })
 });
