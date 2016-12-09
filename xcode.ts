@@ -28,7 +28,7 @@ export class Xcode {
                             attributes: {
                                 TargetAttributes: {
                                     [target.key]: {
-                                        DevelopmentTeam: undefined /* deletes "W7TGC3P93K" */,
+                                        DevelopmentTeam: undefined /* deletes DevelopmentTeam */,
                                         ProvisioningStyle: "Manual"
                                     }
                                 }
@@ -60,7 +60,7 @@ export class Xcode {
                             attributes: {
                                 TargetAttributes: {
                                     [target.key]: {
-                                        DevelopmentTeam: developmentTeam /* deletes "W7TGC3P93K" */,
+                                        DevelopmentTeam: developmentTeam,
                                         ProvisioningStyle: "Automatic"
                                     }
                                 }
