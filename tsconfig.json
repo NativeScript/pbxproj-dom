@@ -8,6 +8,7 @@
         "noImplicitReturns": true,
         "noImplicitUseStrict": true,
         "declaration": true,
+        "sourceMap": true,
         "lib": [
             "es2016"
         ]
