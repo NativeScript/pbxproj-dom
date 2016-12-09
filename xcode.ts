@@ -6,12 +6,31 @@ import * as fs from "fs";
  * Facade encapsulating common Xcode interractions.
  */
 export class Xcode {
+    /**
+     * Readonly, pbx project dom.
+     */
     public document: pbx.Document;
 
+    /**
+     * Readonly, project file path.
+     */
+    public path: string;
+
+    /**
+     * Opens an existing Xcode project file.
+     */
     public static open(path: string): Xcode {
         const xcode = new Xcode();
         xcode.document = pbx.parse(parser.parse(fs.readFileSync(path).toString()));
+        xcode.path = path;
         return xcode;
+    }
+
+    /**
+     * Save the project back to the project file.
+     */
+    public save() {
+        fs.writeFileSync(this.path, this.toString(), { encoding: 'utf8' });
     }
 
     /**
@@ -78,6 +97,9 @@ export class Xcode {
             });
     }
 
+    /**
+     * Serializes the project back to string format.
+     */
     toString() {
         return this.document.toString();
     }
