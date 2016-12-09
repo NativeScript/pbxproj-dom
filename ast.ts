@@ -94,7 +94,7 @@ export abstract class Node {
     get indent(): string { return this.parent ? this.parent.indent : ""; }
 }
 
-class Null extends Node {
+export class Null extends Node {
     static instance = new Null();
 }
 

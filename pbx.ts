@@ -7,7 +7,7 @@ export function isTarget(obj: DocumentObject): obj is PBXNativeTarget {
     return obj.isa === "PBXNativeTarget";
 }
 
-type ISA = "PBXProject" | "PBXNativeTarget" | "XCBuildConfiguration" | "XCConfigurationList";
+export type ISA = "PBXProject" | "PBXNativeTarget" | "XCBuildConfiguration" | "XCConfigurationList";
 const pbxConstructors: { [key: string]: typeof DocumentObject } = {}
 
 function pbx(target: typeof DocumentObject): void {
