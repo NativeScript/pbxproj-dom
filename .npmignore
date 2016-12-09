@@ -4,3 +4,4 @@ tests
 !*.d.ts
 *.js.map
 tsconfig.json
+.pegjs
