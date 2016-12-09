@@ -29,7 +29,7 @@ function isJSONKey(json: any): json is number | string {
     return typeof json === "number" || typeof json === "string";
 }
 function canBeIdentifier(text: string): boolean {
-    return /^[0-9a-zA-Z][0-9a-zA-Z-]*$/.test(text);
+    return /^[0-9a-zA-Z][0-9a-zA-Z-_]*$/.test(text);
 }
 function makeKey(space: Space, json: string | number): Key {
     let text = json.toString();
@@ -134,6 +134,7 @@ export class Dictionary extends Node {
             return acc;
         }, {});
     }
+
     get(key: string): NullableValue {
         const kvp = this.kvps.find(kvp => {
             return kvp.key.json == key;
@@ -166,35 +167,37 @@ export class Dictionary extends Node {
             } else if (isJSONStringBlock(value) && isStringBlock(current)) {
                 current.text = value.toString();
             } else {
-                let astValue: Value;
                 if (isJSONKey(value)) {
-                    astValue = makeKey(new Space([new WhiteSpace(" ")]), value);
-                } else if (isDictionary(value)) {
-                    // TODO:
-                    throw new Error("Not implemented making dictionary from json object");
-                } else if (isList(value)) {
+                    const astValue = makeKey(new Space([new WhiteSpace(" ")]), value);
+                    this.set(key, astValue);
+                } else if (isJSONDictionary(value)) {
+                    const astValue = new Dictionary(new Space([new WhiteSpace(" ")]), [], new Space([new WhiteSpace("\n" + this.indent)]));
+                    this.set(key, astValue);
+                    astValue.patch(value);
+                } else if (isJSONList(value)) {
                     // TODO:
                     throw new Error("Not implemented making dictionary from json Array");
                 } else {
                     // TODO:
                     throw new Error("Not implemented making ast from json " + value);
                 }
-
-                let kvp = this._content.find(kvp => kvp.key.text === key);
-                if (kvp) {
-                    kvp.value = astValue;
-                } else {
-                    let space: Space = new Space([new WhiteSpace(this.indent ? "\n" + this.indent : " ")]);
-                    kvp = new KeyValuePair<Value>(makeKey(space, key), new Space([new WhiteSpace(" ")]), astValue, new Space([]));
-                    let index = this._content.findIndex(p => p.key.text > key);
-                    if (index === -1) {
-                        this._content.push(kvp);
-                    } else {
-                        this._content.splice(index, 0, kvp);
-                    }
-                    kvp.parent = this;
-                }
             }
+        }
+    }
+    set(key: string, value: Value) {
+        let kvp = this._content.find(kvp => kvp.key.text === key);
+        if (kvp) {
+            kvp.value = value;
+        } else {
+            let space: Space = new Space([new WhiteSpace(this.indent ? "\n" + this.indent : " ")]);
+            kvp = new KeyValuePair<Value>(makeKey(space, key), new Space([new WhiteSpace(" ")]), value, new Space([]));
+            let index = this._content.findIndex(p => p.key.text > key);
+            if (index === -1) {
+                this._content.push(kvp);
+            } else {
+                this._content.splice(index, 0, kvp);
+            }
+            kvp.parent = this;
         }
     }
     delete(key: string) {

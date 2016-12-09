@@ -1,8 +1,6 @@
 import * as ast from "./parser";
 import { Xcode } from "./xcode";
-
 import {assert} from "chai";
-
 import * as fs from "fs";
 
 describe("parser", () => {
@@ -34,5 +32,17 @@ describe("dom", () => {
         xcode.setAutomaticSigningStyle("SampleProvProfApp", "W7TGC3P93K");
         const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
         assert.equal(xcode.toString(), expected);
-    })
+    });
+    it("can upgrade signing style from none to manual", () => {
+        const xcode = Xcode.open("tests/signing-style/none.pbxproj");
+        xcode.setManualSigningStyle("SampleProvProfApp");
+        const expected = fs.readFileSync("tests/signing-style/manual.pbxproj").toString();
+        assert.equal(xcode.toString(), expected);
+    });
+    it("can upgrade signing style from none to automatic", () => {
+        const xcode = Xcode.open("tests/signing-style/none.pbxproj");
+        xcode.setAutomaticSigningStyle("SampleProvProfApp", "W7TGC3P93K");
+        const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
+        assert.equal(xcode.toString(), expected);
+    });
 });
