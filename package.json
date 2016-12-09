@@ -13,7 +13,7 @@
     "typescript": "^2.1.4"
   },
   "scripts": {
-    "prepublish": "pegjs parser.pegjs && tsc && mocha",
+    "prepublish": "pegjs parser.pegjs && tsc",
     "test": "npm run prepublish && mocha",
     "watch": "mocha-typescript-watch"
   },
