@@ -36,7 +36,7 @@ export class Xcode {
     /**
      * Sets Manual signing style for a target in the pbx.Document.
      */
-    setManualSigningStyle(targetName: string) {
+    setManualSigningStyle(targetName: string, {team, uuid, name}: { team: string, uuid: string, name: string } = { team: undefined, uuid: undefined, name: undefined}) {
         this.document.targets
             .filter(target => target.name === targetName)
             .forEach(target => {
@@ -47,7 +47,7 @@ export class Xcode {
                             attributes: {
                                 TargetAttributes: {
                                     [target.key]: {
-                                        DevelopmentTeam: undefined /* deletes DevelopmentTeam */,
+                                        DevelopmentTeam: team || undefined,
                                         ProvisioningStyle: "Manual"
                                     }
                                 }
@@ -58,7 +58,9 @@ export class Xcode {
                     config.patch({
                         buildSettings: {
                             "CODE_SIGN_IDENTITY[sdk=iphoneos*]": undefined /* deletes the CODE_SIGN_IDENTITY[sdk=iphoneos*] */,
-                            DEVELOPMENT_TEAM: ""
+                            DEVELOPMENT_TEAM: team || "",
+                            PROVISIONING_PROFILE: uuid || undefined,
+                            PROVISIONING_PROFILE_SPECIFIER: name || undefined
                         }
                     });
                 });

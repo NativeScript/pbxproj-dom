@@ -29,7 +29,7 @@ function isJSONKey(json: any): json is number | string {
     return typeof json === "number" || typeof json === "string";
 }
 function canBeIdentifier(text: string): boolean {
-    return /^[0-9a-zA-Z][0-9a-zA-Z-_]*$/.test(text);
+    return /^[0-9a-zA-Z][0-9a-zA-Z_]*$/.test(text);
 }
 function makeKey(space: Space, json: string | number): Key {
     let text = json.toString();

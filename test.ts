@@ -39,6 +39,26 @@ describe("dom", () => {
         const expected = fs.readFileSync("tests/signing-style/manual.pbxproj").toString();
         assert.equal(xcode.toString(), expected);
     });
+    it("can upgrade signing style from none to manual with specific provisioning profile for all targets", () => {
+        const xcode = Xcode.open("tests/signing-style/none.pbxproj");
+        xcode.setManualSigningStyle("SampleProvProfApp", {
+            uuid: "a62743b2-2513-4488-8d83-bad5f3b6716d",
+            name: "NativeScriptDevProfile",
+            team: "W7TGC3P93K"
+        });
+        const expected = fs.readFileSync("tests/signing-style/manual-with-provisioning.pbxproj").toString();
+        assert.equal(xcode.toString(), expected);
+    });
+    it("can upgrade signing style from automatic to manual with specific provisioning profile for all targets", () => {
+        const xcode = Xcode.open("tests/signing-style/automatic.pbxproj");
+        xcode.setManualSigningStyle("SampleProvProfApp", {
+            uuid: "a62743b2-2513-4488-8d83-bad5f3b6716d",
+            name: "NativeScriptDevProfile",
+            team: "W7TGC3P93K"
+        });
+        const expected = fs.readFileSync("tests/signing-style/manual-with-provisioning.pbxproj").toString();
+        assert.equal(xcode.toString(), expected);
+    });
     it("can upgrade signing style from none to automatic", () => {
         const xcode = Xcode.open("tests/signing-style/none.pbxproj");
         xcode.setAutomaticSigningStyle("SampleProvProfApp", "W7TGC3P93K");

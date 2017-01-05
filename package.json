@@ -14,7 +14,7 @@
   },
   "scripts": {
     "prepublish": "pegjs parser.pegjs && tsc",
-    "test": "npm run prepublish && mocha",
+    "test": "pegjs parser.pegjs && tsc && mocha",
     "watch": "mocha-typescript-watch"
   },
   "repository": {
