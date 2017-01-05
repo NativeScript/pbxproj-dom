@@ -65,4 +65,10 @@ describe("dom", () => {
         const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
         assert.equal(xcode.toString(), expected);
     });
+    it("can upgrade signing style from manual with specific provisioning profile to automatic", () => {
+        const xcode = Xcode.open("tests/signing-style/manual-with-provisioning.pbxproj");
+        xcode.setAutomaticSigningStyle("SampleProvProfApp", "W7TGC3P93K");
+        const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
+        assert.equal(xcode.toString(), expected);
+    });
 });

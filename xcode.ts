@@ -92,7 +92,9 @@ export class Xcode {
                     config.patch({
                         buildSettings: {
                             "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer",
-                            DEVELOPMENT_TEAM: developmentTeam
+                            DEVELOPMENT_TEAM: developmentTeam,
+                            PROVISIONING_PROFILE: undefined,
+                            PROVISIONING_PROFILE_SPECIFIER: undefined
                         }
                     });
                 });
