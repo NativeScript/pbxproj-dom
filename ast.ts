@@ -92,6 +92,10 @@ export abstract class Node {
      * For example the indent property of a List will be used when new items are added, and applied to preserve good formatting.
      */
     get indent(): string { return this.parent ? this.parent.indent : ""; }
+
+    get(key: string): NullableValue {
+        return Null.instance;
+    }
 }
 
 export class Null extends Node {
@@ -225,6 +229,9 @@ export class KeyValuePair<V extends Value> extends Node {
     get key(): Key { return this._key }
     toString() {
         return "" + this._key + this._s2 + "=" + this.value + this._s3 + ";";
+    }
+    get(key: string): NullableValue {
+        return this.value ? this.value.get(key) : Null.instance;
     }
 }
 KeyValuePair.prototype.kind = "KeyValuePair";

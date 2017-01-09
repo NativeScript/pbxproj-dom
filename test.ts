@@ -71,4 +71,31 @@ describe("dom", () => {
         const expected = fs.readFileSync("tests/signing-style/automatic.pbxproj").toString();
         assert.equal(xcode.toString(), expected);
     });
+
+    it("can read signing style of autmatically signed target", () => {
+        const xcode = Xcode.open("tests/signing-style/automatic.pbxproj");
+        const signing = xcode.getSigning("SampleProvProfApp");
+        assert.deepEqual(signing, { style: "Automatic", team: "W7TGC3P93K" });
+    });
+    it("can read signing style of manually signed target", () => {
+        const xcode = Xcode.open("tests/signing-style/manual-with-provisioning.pbxproj");
+        const signing = xcode.getSigning("SampleProvProfApp");
+        assert.deepEqual(signing, {
+            style: "Manual",
+            configurations: {
+                "Debug": {
+                    uuid: 'a62743b2-2513-4488-8d83-bad5f3b6716d',
+                    name: 'NativeScriptDevProfile',
+                    identity: undefined,
+                    team: 'W7TGC3P93K'
+                },
+                "Release": {
+                    uuid: 'a62743b2-2513-4488-8d83-bad5f3b6716d',
+                    name: 'NativeScriptDevProfile',
+                    identity: undefined,
+                    team: 'W7TGC3P93K'
+                }
+            }
+        });
+    });
 });
