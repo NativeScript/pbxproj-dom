@@ -129,8 +129,6 @@ export class Xcode {
                     } else if (style === "Manual") {
                         const configurations: { [config: string]: ManualSigning } = {};
                         for (let config of target.buildConfigurationsList.buildConfigurations) {
-                            // {team, uuid, name, identity}
-
                             const buildSettings = config.ast.get("buildSettings");
                             const uuid = buildSettings.get("PROVISIONING_PROFILE").text;
                             const name = buildSettings.get("PROVISIONING_PROFILE_SPECIFIER").text;
