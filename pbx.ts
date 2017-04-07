@@ -42,6 +42,9 @@ export class DocumentObject {
     get targets(): PBXNativeTarget[] {
         return this.ast.value.get("targets").items.map(key => this.document[key.text]);
     }
+    get buildConfigurationsList(): XCConfigurationList {
+        return this.document[this.ast.value.get("buildConfigurationList").text];
+    }
 }
 
 @pbx export class PBXNativeTarget extends DocumentObject {

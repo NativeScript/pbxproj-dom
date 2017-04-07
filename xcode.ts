@@ -48,34 +48,36 @@ export class Xcode {
      * Sets Manual signing style for a target in the pbx.Document.
      */
     setManualSigningStyle(targetName: string, {team, uuid, name, identity}: ManualSigning = { team: undefined, uuid: undefined, name: undefined }) {
-        this.document.targets
-            .filter(target => target.name === targetName)
-            .forEach(target => {
-                this.document.projects
-                    .filter(project => project.targets.indexOf(target) >= 0)
-                    .forEach(project => {
-                        project.patch({
-                            attributes: {
-                                TargetAttributes: {
-                                    [target.key]: {
-                                        DevelopmentTeam: team,
-                                        ProvisioningStyle: "Manual"
-                                    }
+        this.document.projects.forEach(project => {
+            let targets = project.targets.filter(target => target.name === targetName);
+            if (targets.length > 0) {
+                project.buildConfigurationsList.buildConfigurations.forEach(config =>
+                    config.patch({ buildSettings: { "CODE_SIGN_IDENTITY[sdk=iphoneos*]": identity } })
+                );
+                targets.forEach(target => {
+                    project.patch({
+                        attributes: {
+                            TargetAttributes: {
+                                [target.key]: {
+                                    DevelopmentTeam: team,
+                                    ProvisioningStyle: "Manual"
                                 }
+                            }
+                        }
+                    });
+                    target.buildConfigurationsList.buildConfigurations.forEach(config => {
+                        config.patch({
+                            buildSettings: {
+                                "CODE_SIGN_IDENTITY[sdk=iphoneos*]": identity /* delete or set the CODE_SIGN_IDENTITY[sdk=iphoneos*] */,
+                                DEVELOPMENT_TEAM: team || "",
+                                PROVISIONING_PROFILE: uuid,
+                                PROVISIONING_PROFILE_SPECIFIER: name
                             }
                         });
                     });
-                target.buildConfigurationsList.buildConfigurations.forEach(config => {
-                    config.patch({
-                        buildSettings: {
-                            "CODE_SIGN_IDENTITY[sdk=iphoneos*]": identity /* delete or set the CODE_SIGN_IDENTITY[sdk=iphoneos*] */,
-                            DEVELOPMENT_TEAM: team || "",
-                            PROVISIONING_PROFILE: uuid,
-                            PROVISIONING_PROFILE_SPECIFIER: name
-                        }
-                    });
                 });
-            });
+            }
+        });
     }
 
     /**

@@ -39,3 +39,5 @@ jspm_packages
 *.js
 *.d.ts
 *.js.map
+
+.DS_Store

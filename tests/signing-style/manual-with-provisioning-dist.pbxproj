@@ -153,6 +153,12 @@
 				CLASSPREFIX = TNS;
 				LastUpgradeCheck = 500;
 				ORGANIZATIONNAME = Telerik;
+				TargetAttributes = {
+					858B83EF18CA22B800AB12DE = {
+						DevelopmentTeam = W7TGC3P93K;
+						ProvisioningStyle = Manual;
+					};
+				};
 			};
 			buildConfigurationList = 858B832918CA111C00AB12DE /* Build configuration list for PBXProject "SampleProvProfApp" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -274,6 +280,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -310,6 +317,7 @@
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -334,6 +342,8 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_MODULES_AUTOLINK = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				DEVELOPMENT_TEAM = W7TGC3P93K;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -348,6 +358,8 @@
 				INFOPLIST_FILE = "$(SRCROOT)/SampleProvProfApp/SampleProvProfApp-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = SampleProvProfApp;
+				PROVISIONING_PROFILE = "a62743b2-2513-4488-8d83-bad5f3b6716d";
+				PROVISIONING_PROFILE_SPECIFIER = NativeScriptDevProfile;
 				VALID_ARCHS = "armv7 arm64";
 				WRAPPER_EXTENSION = app;
 			};
@@ -360,6 +372,8 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_MODULES = NO;
 				CLANG_MODULES_AUTOLINK = NO;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				DEVELOPMENT_TEAM = W7TGC3P93K;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -370,6 +384,8 @@
 				INFOPLIST_FILE = "$(SRCROOT)/SampleProvProfApp/SampleProvProfApp-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = SampleProvProfApp;
+				PROVISIONING_PROFILE = "a62743b2-2513-4488-8d83-bad5f3b6716d";
+				PROVISIONING_PROFILE_SPECIFIER = NativeScriptDevProfile;
 				VALID_ARCHS = "armv7 arm64";
 				WRAPPER_EXTENSION = app;
 			};
