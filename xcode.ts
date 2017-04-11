@@ -69,7 +69,7 @@ export class Xcode {
                         config.patch({
                             buildSettings: {
                                 "CODE_SIGN_IDENTITY[sdk=iphoneos*]": identity /* delete or set the CODE_SIGN_IDENTITY[sdk=iphoneos*] */,
-                                DEVELOPMENT_TEAM: team || "",
+                                DEVELOPMENT_TEAM: team,
                                 PROVISIONING_PROFILE: uuid,
                                 PROVISIONING_PROFILE_SPECIFIER: name
                             }
