@@ -1,6 +1,6 @@
 Parser and DOM over the xcode pbxproj
 
-[![Build Status](https://travis-ci.org/PanayotCankov/pbxproj-dom.svg?branch=master)](https://travis-ci.org/PanayotCankov/pbxproj-dom)
+[![Build Status](https://travis-ci.org/NativeScript/pbxproj-dom.svg?branch=master)](https://travis-ci.org/PanayotCankov/pbxproj-dom)
 
 Sample usage:
 
