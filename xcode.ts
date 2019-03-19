@@ -55,28 +55,25 @@ export class Xcode {
                     config.patch({ buildSettings: { "CODE_SIGN_IDENTITY[sdk=iphoneos*]": identity } })
                 );
                 targets.forEach(target => {
-                    project.patch({
-                        attributes: {
-                            TargetAttributes: {
-                                [target.key]: {
-                                    DevelopmentTeam: team,
-                                    ProvisioningStyle: "Manual"
-                                }
-                            }
-                        }
-                    });
-                    target.buildConfigurationsList.buildConfigurations.forEach(config => {
-                        config.patch({
-                            buildSettings: {
-                                "CODE_SIGN_IDENTITY[sdk=iphoneos*]": identity /* delete or set the CODE_SIGN_IDENTITY[sdk=iphoneos*] */,
-                                DEVELOPMENT_TEAM: team,
-                                PROVISIONING_PROFILE: uuid,
-                                PROVISIONING_PROFILE_SPECIFIER: name
-                            }
-                        });
-                    });
+                    this.setTargetManualSigningStyle(target, {team, uuid, name, identity})
                 });
             }
+        });
+    }
+
+    setManualSigningStyleByTargetProductType(targetProductType: string, {team, uuid, name, identity}: ManualSigning = { team: undefined, uuid: undefined, name: undefined }) {
+        this.document.targets
+        .filter(target => target.productType === targetProductType)
+        .forEach(target => {
+            this.setTargetManualSigningStyle(target, {team, uuid, name, identity})
+        });
+    }
+
+    setManualSigningStyleByTargetKey(targetKey: string, {team, uuid, name, identity}: ManualSigning = { team: undefined, uuid: undefined, name: undefined }) {
+        this.document.targets
+        .filter(target => target.key === targetKey)
+        .forEach(target => {
+            this.setTargetManualSigningStyle(target, {team, uuid, name, identity})
         });
     }
 
@@ -87,30 +84,29 @@ export class Xcode {
         this.document.targets
             .filter(target => target.name === targetName)
             .forEach(target => {
-                this.document.projects
-                    .filter(project => project.targets.indexOf(target) >= 0)
-                    .forEach(project => {
-                        project.patch({
-                            attributes: {
-                                TargetAttributes: {
-                                    [target.key]: {
-                                        DevelopmentTeam: developmentTeam,
-                                        ProvisioningStyle: "Automatic"
-                                    }
-                                }
-                            }
-                        });
-                    });
-                target.buildConfigurationsList.buildConfigurations.forEach(config => {
-                    config.patch({
-                        buildSettings: {
-                            "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer",
-                            DEVELOPMENT_TEAM: developmentTeam,
-                            PROVISIONING_PROFILE: undefined,
-                            PROVISIONING_PROFILE_SPECIFIER: undefined
-                        }
-                    });
-                });
+                this.setTargetAutomaticSigningStyle(target, developmentTeam);
+            });
+    }
+
+     /**
+     * Sets Automatic signing style for a target in the pbx.Document.
+     */
+    setAutomaticSigningStyleByTargetProductType(targetProductType: string, developmentTeam: string) {
+        this.document.targets
+            .filter(target => target.productType === targetProductType)
+            .forEach(target => {
+                this.setTargetAutomaticSigningStyle(target, developmentTeam);
+            });
+    }
+
+     /**
+     * Sets Automatic signing style for a target in the pbx.Document.
+     */
+    setAutomaticSigningStyleByTargetKey(targetKey: string, developmentTeam: string) {
+        this.document.targets
+            .filter(target => target.key === targetKey)
+            .forEach(target => {
+                this.setTargetAutomaticSigningStyle(target, developmentTeam);
             });
     }
 
@@ -147,6 +143,61 @@ export class Xcode {
             }
         }
         return undefined;
+    }
+
+    private setTargetManualSigningStyle(target: pbx.PBXNativeTarget, {team, uuid, name, identity}: ManualSigning = { team: undefined, uuid: undefined, name: undefined }): void {
+        this.document.projects
+        .filter(project => project.targets.indexOf(target) >= 0)
+        .forEach(project => {
+            project.patch({
+                attributes: {
+                    TargetAttributes: {
+                        [target.key]: {
+                            DevelopmentTeam: team,
+                            ProvisioningStyle: "Manual"
+                        }
+                    }
+                }
+            });
+            target.buildConfigurationsList.buildConfigurations.forEach(config => {
+                config.patch({
+                    buildSettings: {
+                        "CODE_SIGN_IDENTITY[sdk=iphoneos*]": identity /* delete or set the CODE_SIGN_IDENTITY[sdk=iphoneos*] */,
+                        DEVELOPMENT_TEAM: team,
+                        PROVISIONING_PROFILE: uuid,
+                        PROVISIONING_PROFILE_SPECIFIER: name
+                    }
+                });
+            });
+        });
+    }
+
+    private setTargetAutomaticSigningStyle(target: pbx.PBXNativeTarget, developmentTeam: string): void {
+        this.document.projects
+            .filter(project => project.targets.indexOf(target) >= 0)
+            .forEach(project => {
+                project.patch({
+                    attributes: {
+                        TargetAttributes: {
+                            [target.key]: {
+                                DevelopmentTeam: developmentTeam,
+                                ProvisioningStyle: "Automatic"
+                            }
+                        }
+                    }
+                });
+            });
+
+        target.buildConfigurationsList.buildConfigurations.forEach(config => {
+            config.patch({
+                buildSettings: {
+                    "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "iPhone Developer",
+                    DEVELOPMENT_TEAM: developmentTeam,
+                    PROVISIONING_PROFILE: undefined,
+                    PROVISIONING_PROFILE_SPECIFIER: undefined
+                }
+            });
+        });
     }
 
     /**

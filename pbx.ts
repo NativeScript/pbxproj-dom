@@ -52,6 +52,7 @@ export class DocumentObject {
     get buildConfigurationsList(): XCConfigurationList {
         return this.document[this.ast.value.get("buildConfigurationList").text];
     }
+    get productType() { return this.ast.value.get("productType").text; }
 }
 
 @pbx export class XCBuildConfiguration extends DocumentObject {
