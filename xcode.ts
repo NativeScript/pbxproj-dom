@@ -61,11 +61,21 @@ export class Xcode {
         });
     }
 
+    /**
+     * Sets Manual signing style for targets in the pbx.Document that match a specified product types.
+     */
     setManualSigningStyleByTargetProductType(targetProductType: string, {team, uuid, name, identity}: ManualSigning = { team: undefined, uuid: undefined, name: undefined }) {
+        this.setManualSigningStyleByTargetProductTypesList([targetProductType], {team, uuid, name, identity});
+    }
+
+    /**
+     * Sets Manual signing style for targets in the pbx.Document that match one of the specified product types.
+     */
+    setManualSigningStyleByTargetProductTypesList(targetProductTypesList: string[], {team, uuid, name, identity}: ManualSigning = { team: undefined, uuid: undefined, name: undefined }) {
         this.document.targets
-        .filter(target => target.productType === targetProductType)
+        .filter(target => targetProductTypesList.indexOf(target.productType) >= 0)
         .forEach(target => {
-            this.setTargetManualSigningStyle(target, {team, uuid, name, identity})
+            this.setTargetManualSigningStyle(target, {team, uuid, name, identity});
         });
     }
 
@@ -73,7 +83,7 @@ export class Xcode {
         this.document.targets
         .filter(target => target.key === targetKey)
         .forEach(target => {
-            this.setTargetManualSigningStyle(target, {team, uuid, name, identity})
+            this.setTargetManualSigningStyle(target, {team, uuid, name, identity});
         });
     }
 
@@ -89,11 +99,18 @@ export class Xcode {
     }
 
      /**
-     * Sets Automatic signing style for a target in the pbx.Document.
+     * Sets Automatic signing style for a target in the pbx.Document that match one of the specified product types.
      */
     setAutomaticSigningStyleByTargetProductType(targetProductType: string, developmentTeam: string) {
+        this.setAutomaticSigningStyleByTargetProductTypesList([targetProductType], developmentTeam);
+    }
+
+    /**
+     * Sets Automatic signing style for targets in the pbx.Document that match one of the specified product types.
+     */
+    setAutomaticSigningStyleByTargetProductTypesList(targetProductTypesList: string[], developmentTeam: string) {
         this.document.targets
-            .filter(target => target.productType === targetProductType)
+            .filter(target => targetProductTypesList.indexOf(target.productType) >= 0)
             .forEach(target => {
                 this.setTargetAutomaticSigningStyle(target, developmentTeam);
             });
