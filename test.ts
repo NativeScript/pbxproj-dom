@@ -12,6 +12,7 @@ describe("parser", () => {
             "tests/proj2.pbxproj",
             "tests/proj3.pbxproj",
             "tests/proj4.pbxproj",
+            "tests/proj5.pbxproj",
             "tests/signing-style/manual.pbxproj",
             "tests/signing-style/automatic.pbxproj"
         ].forEach(f => it(f, () => {

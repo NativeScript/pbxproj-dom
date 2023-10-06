@@ -11,7 +11,7 @@ List = s1:Space "(" content:(Value Space ",")* s2:Space ")" { return new ast.Lis
 // Id used to be [a-zA-Z0-9\/\\_]* but characters such as '-', '.', '$' keep breaking the parser.
 Identifier = s1:Space id:$[^(){} \t\n\r=;,]* { return new ast.Identifier(s1, id); }
 
-StringBlock = s1:Space '"' content:$([^\\\"] / '\\"' / "\\'" / '\\n')* '"' { return new ast.StringBlock(s1, content); }
+StringBlock = s1:Space '"' content:$([^\\\"] / '\\"' / "\\'" / '\\n' / '\\')* '"' { return new ast.StringBlock(s1, content); }
 Space = content:(WhiteSpace / CommentBlock)* { return new ast.Space(content); }
 WhiteSpace = ws:$[ \t\n\r]+ { return new ast.WhiteSpace(ws); }
 CommentBlock = "/*" content:$[^*]* "*/" { return new ast.CommentBlock(content); }
